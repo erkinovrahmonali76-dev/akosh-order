@@ -1,0 +1,116 @@
+<!doctype html><html lang="uz"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AKOSH ORDER</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{background:radial-gradient(900px 500px at 10% -10%,#0b3b8f66,transparent),radial-gradient(700px 400px at 100% 0,#06b6d422,transparent),#050a18;color:#e6edf7;font-family:Inter,system-ui,sans-serif;min-height:100vh}
+.g{background:#ffffff0d;border:1px solid #ffffff1a;backdrop-filter:blur(14px);border-radius:16px}
+.b{background:linear-gradient(90deg,#2563ff,#06b6d4);border-radius:12px;padding:.55rem 1rem;font-weight:600;transition:.2s;display:inline-block}.b:hover{transform:translateY(-2px);box-shadow:0 8px 24px #2563ff55}
+.o{border:1px solid #ffffff33;border-radius:12px;padding:.45rem .9rem}
+input,select,textarea{background:#0b1430;border:1px solid #ffffff22;border-radius:10px;padding:.55rem .75rem;width:100%;color:#fff;margin:.25rem 0}
+.f{animation:f .4s}@keyframes f{from{opacity:0;transform:translateY(8px)}}.t{color:#22d3ee}</style></head>
+<body><div id="app"></div>
+<script>
+const $=s=>document.querySelector(s),app=$('#app');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sum=n=>Number(n).toLocaleString('ru')+" so'm";
+const ST={new:'Yangi',accepted:'Qabul qilingan',processing:'Jarayonda',delivered:'Yetkazilgan',cancelled:'Bekor qilingan'};
+async function api(p,o={}){const r=await fetch('/api/'+p,{method:o.m||(o.b||o.f?'POST':'GET'),headers:o.f?{}:{'content-type':'application/json'},body:o.f||(o.b?JSON.stringify(o.b):undefined)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Xato');return d}
+const go=h=>{location.hash=h};
+let me=null,cart=[];
+const fd=e=>{e.preventDefault();return Object.fromEntries(new FormData(e.target))};
+const err=e=>alert(e.message);
+async function up(file){if(!file||!file.size)return'';const f=new FormData();f.append('file',file);return (await api('upload',{f})).key}
+const logo=`<a href="#/" class="text-xl font-extrabold tracking-wide">AKOSH <span class="t">ORDER</span></a>`;
+const PL=[['start','START',19000,['20 ta mahsulot','Buyurtmalar boshqaruvi','Do\'kon linki']],['pro','PRO',39000,['100 ta mahsulot','Statistika grafiklari','Barcha START imkoniyatlari']],['business','BUSINESS',69000,['1000 ta mahsulot','Grafiklar','Do\'konda AKOSH belgisi yo\'q']]];
+const plans=()=>`<div class="grid md:grid-cols-3 gap-4">${PL.map(p=>`<div class="g p-6 ${p[0]==='pro'?'ring-2 ring-cyan-400':''}"><h3 class="font-bold text-lg">${p[1]}</h3><div class="text-3xl font-extrabold my-2">${sum(p[2])}<span class="text-sm opacity-60">/oy</span></div><ul class="opacity-80 text-sm space-y-1 mb-4">${p[3].map(x=>`<li>✓ ${x}</li>`).join('')}</ul><a class="b" href="#/${me?'dash/sub':'register'}">Tanlash</a></div>`).join('')}</div>`;
+
+function landing(){app.innerHTML=`<div class="max-w-6xl mx-auto p-4 f">
+<header class="flex justify-between items-center py-3">${logo}<div class="space-x-2">${me?'<a class="b" href="#/dash">Kabinet</a>':'<a class="o" href="#/login">Kirish</a><a class="b" href="#/register">Boshlash</a>'}</div></header>
+<section class="text-center py-20"><h1 class="text-4xl md:text-6xl font-extrabold">O'z online do'koningizni <span class="t">5 daqiqada</span> oching</h1><p class="opacity-70 mt-4 max-w-xl mx-auto">AKOSH ORDER — mahsulot joylang, alohida link oling, buyurtmalarni bitta joydan boshqaring.</p><a class="b mt-8" href="#/register">Hoziroq boshlash</a></section>
+<section class="grid md:grid-cols-3 gap-4 mb-16">${[['⚡','Tez','Do\'kon va mahsulotlar daqiqalarda tayyor'],['📱','Mobil','Telefonda ham chiroyli ishlaydi'],['🔒','Xavfsiz','Ma\'lumotlaringiz himoyalangan']].map(x=>`<div class="g p-6"><div class="text-3xl">${x[0]}</div><h3 class="font-bold mt-2">${x[1]}</h3><p class="opacity-70 text-sm">${x[2]}</p></div>`).join('')}</section>
+<h2 class="text-2xl font-bold mb-4">Qanday ishlaydi</h2><div class="grid md:grid-cols-4 gap-3 mb-16">${['Ro\'yxatdan o\'ting','Tarif tanlang','Mahsulot joylang','Linkni ulashing, buyurtma oling'].map((x,i)=>`<div class="g p-4"><b class="t">${i+1}.</b> ${x}</div>`).join('')}</div>
+<h2 class="text-2xl font-bold mb-4">Tariflar</h2>${plans()}
+<h2 class="text-2xl font-bold my-8">FAQ</h2><div class="space-y-2">${[['To\'lov qanday?','Kartaga o\'tkazib, chek rasmini yuklaysiz. Admin tasdiqlagach tarif yoqiladi.'],['Bepul tarif bormi?','Yo\'q, eng arzoni START — 19 000 so\'m/oy.']].map(x=>`<details class="g p-4"><summary class="font-semibold">${x[0]}</summary><p class="opacity-70 mt-2">${x[1]}</p></details>`).join('')}</div>
+<footer class="text-center opacity-50 py-10">© AKOSH ORDER</footer></div>`}
+
+function auth(reg){app.innerHTML=`<div class="max-w-md mx-auto p-4 f"><div class="py-4">${logo}</div><form id="fm" class="g p-6 space-y-2"><h2 class="text-xl font-bold">${reg?'Ro\'yxatdan o\'tish':'Kirish'}</h2>
+${reg?'<input name="name" placeholder="Ism" required><input name="email" type="email" placeholder="Email" required><input name="phone" placeholder="Telefon (+998...)" required>':'<input name="login" placeholder="Email yoki telefon" required>'}
+<input name="password" type="password" placeholder="Parol (kamida 8 belgi)" required><button class="b w-full">${reg?'Yaratish':'Kirish'}</button>
+<p class="text-sm opacity-70">${reg?'<a href="#/login">Akkauntim bor</a>':'<a href="#/register">Ro\'yxatdan o\'tish</a> · Parolni unutdingizmi? Admin bilan bog\'laning.'}</p></form></div>`;
+$('#fm').onsubmit=async e=>{try{await api(reg?'register':'login',{b:fd(e)});await load();go('/dash')}catch(x){err(x)}}}
+
+async function load(){try{me=(await api('me')).user}catch{me=null}}
+const subOk=()=>me.plan&&me.plan_until>Date.now();
+
+async function dash(tab='stat'){
+ if(!me)return go('/login');
+ const tabs=[['stat','Statistika'],['shop',"Do'kon"],['prod','Mahsulotlar'],['ord','Buyurtmalar'],['sub','Obuna'],['me','Profil']];if(me.role==='admin')tabs.push(['admin','Admin']);
+ app.innerHTML=`<div class="max-w-6xl mx-auto p-4 f"><header class="flex justify-between items-center py-2">${logo}<button class="o" id="lo">Chiqish</button></header>
+ <nav class="flex gap-2 overflow-x-auto py-3">${tabs.map(t=>`<a href="#/dash/${t[0]}" class="${t[0]===tab?'b':'o'} whitespace-nowrap">${t[1]}</a>`).join('')}</nav><div id="c"></div></div>`;
+ $('#lo').onclick=async()=>{await api('logout',{b:{}});me=null;go('/')};
+ try{await({stat:vStat,shop:vShop,prod:vProd,ord:vOrd,sub:vSub,me:vMe,admin:vAdmin}[tab]||vStat)()}catch(e){$('#c').innerHTML=`<div class="g p-6">${esc(e.message)}${/do'kon yarating/.test(e.message)?' <a class="b" href="#/dash/shop">Do\'kon yaratish</a>':''}</div>`}}
+
+async function vStat(){const d=await api('stats'),mx=Math.max(1,...(d.chart||[]).map(x=>x.n));
+ $('#c').innerHTML=`<div class="grid grid-cols-2 md:grid-cols-3 gap-3">${[['Bugungi buyurtmalar',d.today],['Jami buyurtmalar',d.total],['Savdo (yetkazilgan)',sum(d.revenue)],['Mahsulotlar',d.products],['Mijozlar',d.customers],['Obuna',subOk()?me.plan.toUpperCase()+' · '+new Date(me.plan_until).toLocaleDateString():'Faol emas']].map(x=>`<div class="g p-4"><div class="text-sm opacity-60">${x[0]}</div><div class="text-xl font-bold">${esc(x[1])}</div></div>`).join('')}</div>
+ ${d.chart?`<div class="g p-4 mt-4"><div class="text-sm opacity-60 mb-2">So'nggi 7 kun buyurtmalari</div><div class="flex items-end gap-2 h-32">${d.chart.map(x=>`<div class="flex-1 text-center text-xs"><div style="height:${x.n/mx*100}px;min-height:2px" class="b !p-0 !rounded"></div>${x.n}<br>${x.d}</div>`).join('')}</div></div>`:'<p class="mt-4 opacity-60">Grafiklar PRO va BUSINESS tarifda.</p>'}
+ <h3 class="font-bold mt-6 mb-2">Oxirgi buyurtmalar</h3>${d.last.map(o=>`<div class="g p-3 mb-2 flex justify-between"><span>#${o.id} ${esc(o.name)}</span><span>${sum(o.total)} · ${ST[o.status]}</span></div>`).join('')||'<p class="opacity-60">Hali yo\'q</p>'}`}
+
+async function vShop(){const {shop:s}=await api('shop');const v=s||{};
+ $('#c').innerHTML=`<form id="fm" class="g p-6 max-w-xl space-y-1"><input name="name" placeholder="Do'kon nomi" value="${esc(v.name)}" required><textarea name="description" placeholder="Tavsif">${esc(v.description)}</textarea><input name="phone" placeholder="Telefon" value="${esc(v.phone)}"><input name="telegram" placeholder="Telegram (@username)" value="${esc(v.telegram)}"><input name="address" placeholder="Manzil" value="${esc(v.address)}"><label class="text-sm opacity-70">Logo</label><input name="file" type="file" accept="image/*"><button class="b">Saqlash</button>
+ ${s?`<p class="mt-3">Do'kon linki: <a class="t underline" target="_blank" href="/#/s/${esc(s.slug)}">${location.origin}/#/s/${esc(s.slug)}</a></p>`:''}</form>`;
+ $('#fm').onsubmit=async e=>{try{const d=fd(e);const logo=await up(e.target.file.files[0]);await api('shop',{m:'PUT',b:{...d,logo}});vShop()}catch(x){err(x)}}}
+
+async function vProd(){const d=await api('products');
+ $('#c').innerHTML=`<p class="opacity-70 mb-2">Limit: ${d.products.length} / ${d.max||'tarif yo\'q'}${subOk()?'':' — <a class="t" href="#/dash/sub">tarif tanlang</a>'}</p>
+ <form id="fm" class="g p-4 grid md:grid-cols-3 gap-2"><input name="name" placeholder="Nom" required><input name="price" type="number" placeholder="Narx" required><input name="stock" type="number" placeholder="Ombordagi miqdor" required><input name="category" placeholder="Kategoriya"><input name="description" placeholder="Tavsif"><input name="file" type="file" accept="image/*"><button class="b md:col-span-3">Qo'shish</button></form>
+ <input id="q" class="mt-4" placeholder="Qidirish..."><div id="ls" class="grid md:grid-cols-2 gap-3 mt-2"></div>`;
+ const draw=()=>{const q=$('#q').value.toLowerCase();$('#ls').innerHTML=d.products.filter(p=>p.name.toLowerCase().includes(q)).map(p=>`<div class="g p-3 flex gap-3">${p.image?`<img src="/api/img/${p.image}" class="w-20 h-20 object-cover rounded-lg">`:''}<div class="flex-1"><b>${esc(p.name)}</b> <span class="opacity-60 text-sm">${esc(p.category)}</span><div>${sum(p.price)} · ${p.stock} dona · ${p.active?'Aktiv':'Deaktiv'}</div><div class="space-x-2 mt-1 text-sm"><button class="o" onclick="pTog(${p.id})">${p.active?'Deaktiv':'Aktiv'}</button><button class="o" onclick="pEd(${p.id})">Tahrirlash</button><button class="o" onclick="pDel(${p.id})">O'chirish</button></div></div></div>`).join('')||'<p class="opacity-60">Mahsulot yo\'q</p>'};
+ draw();$('#q').oninput=draw;window.PS=d.products;
+ $('#fm').onsubmit=async e=>{try{const x=fd(e);const image=await up(e.target.file.files[0]);await api('products',{b:{...x,image}});vProd()}catch(z){err(z)}}}
+const pSave=(p,o)=>api('products/'+p.id,{m:'PUT',b:{...p,...o}}).then(vProd).catch(err);
+const pTog=id=>{const p=PS.find(x=>x.id===id);pSave(p,{active:p.active?0:1})};
+const pEd=id=>{const p=PS.find(x=>x.id===id),n=prompt('Nom',p.name);if(n===null)return;const pr=prompt('Narx',p.price);if(pr===null)return;const s=prompt('Miqdor',p.stock);if(s===null)return;pSave(p,{name:n,price:pr,stock:s})};
+const pDel=async id=>{if(confirm('O\'chirilsinmi?')){await api('products/'+id,{m:'DELETE'});vProd()}};
+
+async function vOrd(){const d=await api('orders');
+ $('#c').innerHTML=`<select id="fl" class="max-w-xs"><option value="">Barchasi</option>${Object.entries(ST).map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select><div id="ls" class="space-y-3 mt-3"></div>`;
+ const draw=()=>{const f=$('#fl').value;$('#ls').innerHTML=d.orders.filter(o=>!f||o.status===f).map(o=>`<div class="g p-4"><div class="flex justify-between flex-wrap gap-2"><b>#${o.id} · ${esc(o.name)} · ${esc(o.phone)}</b><select onchange="oSt(${o.id},this.value)" class="!w-auto">${Object.entries(ST).map(x=>`<option value="${x[0]}" ${x[0]===o.status?'selected':''}>${x[1]}</option>`).join('')}</select></div><div class="text-sm opacity-80 mt-1">${esc(o.address)} · ${esc(o.note)}</div><div class="mt-2 text-sm">${JSON.parse(o.items).map(i=>`${esc(i.name)} × ${i.qty}`).join(', ')}</div><div class="font-bold mt-1">${sum(o.total)} <span class="opacity-50 text-xs">${new Date(o.created).toLocaleString()}</span></div></div>`).join('')||'<p class="opacity-60">Buyurtma yo\'q</p>'};
+ draw();$('#fl').onchange=draw}
+const oSt=(id,status)=>api('orders/'+id,{m:'PUT',b:{status}}).catch(err);
+
+async function vSub(){const [{card},{payments}]=await Promise.all([api('config'),api('pay')]);
+ $('#c').innerHTML=`<div class="g p-4 mb-4">Holat: <b>${subOk()?me.plan.toUpperCase()+' — '+new Date(me.plan_until).toLocaleDateString()+' gacha':'Faol emas'}</b></div>${plans().replace(/href="[^"]*"/g,'href="#/dash/sub"')}
+ <form id="fm" class="g p-6 mt-4 max-w-xl space-y-1"><h3 class="font-bold">To'lov qilish</h3><select name="plan">${PL.map(p=>`<option value="${p[0]}">${p[1]} — ${sum(p[2])}</option>`).join('')}</select>
+ <p class="my-2">Shu kartaga o'tkazing: <b class="t text-lg">${esc(card)}</b></p><label class="text-sm opacity-70">Chek rasmi</label><input name="file" type="file" accept="image/*" required><button class="b">Chekni yuborish</button><p class="text-sm opacity-60">Admin tasdiqlagach tarif 30 kunga yoqiladi.</p></form>
+ <h3 class="font-bold mt-6 mb-2">To'lovlar tarixi</h3>${payments.map(p=>`<div class="g p-3 mb-2">${p.plan.toUpperCase()} · ${sum(p.amount)} · <b>${{pending:'Kutilmoqda',approved:'Tasdiqlandi',rejected:'Rad etildi'}[p.status]}</b></div>`).join('')}`;
+ $('#fm').onsubmit=async e=>{try{const receipt=await up(e.target.file.files[0]);await api('pay',{b:{plan:e.target.plan.value,receipt}});vSub()}catch(x){err(x)}}}
+
+function vMe(){$('#c').innerHTML=`<form id="fm" class="g p-6 max-w-md space-y-1"><input name="name" value="${esc(me.name)}" required><input value="${esc(me.email)}" disabled><input name="password" type="password" placeholder="Yangi parol (ixtiyoriy)"><button class="b">Saqlash</button></form>`;
+ $('#fm').onsubmit=async e=>{try{const d=fd(e);if(!d.password)delete d.password;await api('profile',{m:'PUT',b:d});await load();alert('Saqlandi')}catch(x){err(x)}}}
+
+async function vAdmin(){const [s,{users},{payments}]=await Promise.all([api('admin/stats'),api('admin/users'),api('admin/payments')]);
+ $('#c').innerHTML=`<div class="grid grid-cols-2 md:grid-cols-5 gap-3">${[['Foydalanuvchi',s.users],['Do\'kon',s.shops],['Buyurtma',s.orders],['Kutilayotgan to\'lov',s.pending],['Daromad',sum(s.revenue)]].map(x=>`<div class="g p-3"><div class="text-xs opacity-60">${x[0]}</div><b>${x[1]}</b></div>`).join('')}</div>
+ <h3 class="font-bold mt-6 mb-2">To'lovlar</h3>${payments.map(p=>`<div class="g p-3 mb-2 flex flex-wrap gap-2 justify-between items-center"><span>#${p.id} ${esc(p.name)} ${esc(p.phone)} · ${p.plan.toUpperCase()} · ${sum(p.amount)} · ${p.status}</span><span class="space-x-2"><a class="o" target="_blank" href="/api/img/${p.receipt}">Chek</a>${p.status==='pending'?`<button class="b" onclick="aPay(${p.id},'approve')">Tasdiqlash</button><button class="o" onclick="aPay(${p.id},'reject')">Rad</button>`:''}</span></div>`).join('')}
+ <h3 class="font-bold mt-6 mb-2">Foydalanuvchilar</h3>${users.map(u=>`<div class="g p-3 mb-2 flex flex-wrap gap-2 justify-between items-center"><span>${esc(u.name)} · ${esc(u.email)} · ${u.plan||'tarifsiz'} ${u.slug?`· <a class="t" target="_blank" href="/#/s/${esc(u.slug)}">do'kon</a>`:''} ${u.blocked?'· 🚫':''}</span><span class="space-x-2"><button class="o" onclick="aUser(${u.id},{blocked:${u.blocked?0:1}})">${u.blocked?'Blokdan chiqarish':'Bloklash'}</button><button class="o" onclick="aPw(${u.id})">Parol</button></span></div>`).join('')}`}
+const aPay=(id,action)=>api('admin/payments/'+id,{b:{action}}).then(vAdmin).catch(err);
+const aUser=(id,b)=>api('admin/users/'+id,{b}).then(vAdmin).catch(err);
+const aPw=id=>{const p=prompt('Yangi parol (kamida 8 belgi)');if(p)aUser(id,{password:p})};
+
+async function store(slug){let d;try{d=await api('s/'+slug)}catch(e){app.innerHTML='<p class="p-10 text-center">Do\'kon topilmadi</p>';return}
+ const s=d.shop;window.SP=d.products;const cats=[...new Set(d.products.map(p=>p.category).filter(Boolean))];let cat='';
+ app.innerHTML=`<div class="max-w-5xl mx-auto p-4 f"><header class="g p-5 flex gap-4 items-center">${s.logo?`<img src="/api/img/${s.logo}" class="w-16 h-16 rounded-xl object-cover">`:''}<div><h1 class="text-2xl font-extrabold">${esc(s.name)}</h1><p class="opacity-70 text-sm">${esc(s.description)}</p><p class="text-sm mt-1">${s.phone?'📞 '+esc(s.phone):''} ${s.telegram?'✈️ '+esc(s.telegram):''} ${s.address?'📍 '+esc(s.address):''}</p></div></header>
+ ${s.open?'':'<p class="g p-3 mt-3 text-center">Do\'kon vaqtincha buyurtma qabul qilmaydi</p>'}
+ <div class="flex gap-2 my-3"><input id="q" placeholder="Qidirish..."><select id="ct" class="!w-auto"><option value="">Barcha</option>${cats.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div><div id="ls" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+ <div id="cart" class="g p-4 mt-6"></div>${s.badge?'<p class="text-center opacity-40 text-xs mt-6">AKOSH ORDER bilan yaratilgan</p>':''}</div>`;
+ const draw=()=>{const q=$('#q').value.toLowerCase(),c=$('#ct').value;$('#ls').innerHTML=SP.filter(p=>p.name.toLowerCase().includes(q)&&(!c||p.category===c)).map(p=>`<div class="g p-3 flex flex-col">${p.image?`<img src="/api/img/${p.image}" class="rounded-lg h-32 w-full object-cover">`:''}<b class="mt-2">${esc(p.name)}</b><span class="text-xs opacity-60 flex-1">${esc(p.description)}</span><div class="t font-bold">${sum(p.price)}</div><button class="b mt-2" onclick="add(${p.id})">Savatga</button></div>`).join('')||'<p class="opacity-60 col-span-4">Mahsulot topilmadi</p>'};
+ draw();$('#q').oninput=draw;$('#ct').onchange=draw;window.slug=slug;window.open_=s.open;cartDraw()}
+function add(id){const i=cart.find(x=>x.id===id);i?i.qty++:cart.push({id,qty:1});cartDraw()}
+function cartDraw(){const t=cart.reduce((s,i)=>{const p=SP.find(x=>x.id===i.id);return s+p.price*i.qty},0);
+ $('#cart').innerHTML=cart.length?`<h3 class="font-bold mb-2">Savatcha</h3>${cart.map(i=>{const p=SP.find(x=>x.id===i.id);return`<div class="flex justify-between items-center py-1"><span>${esc(p.name)}</span><span>${sum(p.price*i.qty)} <button class="o" onclick="chg(${i.id},-1)">−</button> ${i.qty} <button class="o" onclick="chg(${i.id},1)">+</button></span></div>`}).join('')}<div class="font-bold my-2">Jami: ${sum(t)}</div>
+ <form id="co" class="space-y-1"><input name="name" placeholder="Ismingiz" required><input name="phone" placeholder="Telefon" required><input name="address" placeholder="Yetkazib berish manzili" required><input name="note" placeholder="Izoh"><button class="b">Buyurtma berish</button></form>`:'<p class="opacity-60">Savatcha bo\'sh</p>';
+ const f=$('#co');if(f)f.onsubmit=async e=>{try{const d=fd(e);await api('s/'+slug+'/order',{b:{...d,items:cart}});const tt=t;cart=[];$('#cart').innerHTML=`<div class="text-center py-6"><div class="text-4xl">✅</div><b>Buyurtmangiz qabul qilindi!</b><p class="opacity-70">Jami: ${sum(tt)}. Tez orada siz bilan bog'lanamiz.</p></div>`}catch(x){err(x)}}}
+function chg(id,n){const i=cart.find(x=>x.id===id),p=SP.find(x=>x.id===id);i.qty+=n;if(i.qty>p.stock)i.qty=p.stock;if(i.qty<=0)cart=cart.filter(x=>x!==i);cartDraw()}
+
+async function route(){const [,a,b]=(location.hash||'#/').slice(1).split('/');
+ if(a==='s')return store(b);await load();
+ if(a==='login')return auth(0);if(a==='register')return auth(1);if(a==='dash')return dash(b);landing()}
+addEventListener('hashchange',route);route();
+</script></body></html>
